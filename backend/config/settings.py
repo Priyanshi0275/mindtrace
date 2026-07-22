@@ -177,3 +177,15 @@ CELERY_BEAT_SCHEDULE = {
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "http://localhost:11434/v1")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "ollama")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "llama3.1:8b")
+import ssl
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+
+CELERY_BROKER_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_NONE,
+}
+
+CELERY_REDIS_BACKEND_USE_SSL = {
+    "ssl_cert_reqs": ssl.CERT_NONE,
+}
