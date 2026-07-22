@@ -16,6 +16,13 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput || true
 
+RUN chmod +x entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+# NOTE: this runs `manage.py migrate` before starting Gunicorn every time
+# the web service boots. That's correct for THIS service. The Celery
+# worker/beat services on Render use this same image but override the
+# start command directly (see DEPLOY_RENDER_VERCEL.md Step 5), so they
+# don't re-run migrate -- only the web service needs to.
+CMD ["./entrypoint.sh"]
