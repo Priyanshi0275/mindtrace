@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      - POSTGRES_USER=mindtrace
+      - POSTGRES_PASSWORD=mindtrace
+      - POSTGRES_DB=mindtrace
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # After first `docker compose up`, run once:
+    #   docker compose exec ollama ollama pull llama3.1:8b
+
+  web:
+    build: ./backend
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    env_file: ./backend/.env
+    environment:
+      - DATABASE_URL=postgres://mindtrace:mindtrace@postgres:5432/mindtrace
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_BASE_URL=http://ollama:11434/v1
+    depends_on:
+      - postgres
+      - redis
+      - ollama
+    ports:
+      - "8000:8000"
+
+  worker:
+    build: ./backend
+    command: celery -A config worker -l info
+    env_file: ./backend/.env
+    environment:
+      - DATABASE_URL=postgres://mindtrace:mindtrace@postgres:5432/mindtrace
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_BASE_URL=http://ollama:11434/v1
+    depends_on:
+      - postgres
+      - redis
+      - ollama
+
+  beat:
+    build: ./backend
+    command: celery -A config beat -l info
+    env_file: ./backend/.env
+    environment:
+      - DATABASE_URL=postgres://mindtrace:mindtrace@postgres:5432/mindtrace
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./backend/infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+volumes:
+  pg_data:
+  ollama_data:
