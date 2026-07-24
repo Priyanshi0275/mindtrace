@@ -27,6 +27,13 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   if (access) headers["Authorization"] = `Bearer ${access}`;
 
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+
+  if (res.status === 401) {
+    clearTokens();
+    if (typeof window !== "undefined") window.location.href = "/login";
+    throw new Error("Session expired — redirecting to login.");
+  }
+
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API error ${res.status}: ${text}`);

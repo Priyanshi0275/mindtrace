@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { emotionStyle } from "@/lib/emotionColors";
 
 type Trend = {
   week_start: string;
@@ -21,20 +22,39 @@ export default function TrendsPage() {
   }, []);
 
   return (
-    <div>
-      <h1>Trends</h1>
-      <p style={{ color: "#666" }}>
-        Computed weekly by a Celery beat job (Celery task, not an LLM call) --
-        see apps/trends/compute.py.
+    <div className="page-shell">
+      <span className="eyebrow">Weekly, computed on a schedule — not by an LLM</span>
+      <h1 className="hero-title">Your trends</h1>
+      <p className="hero-sub">
+        Each bar is an average across a week's entries. Color always matches the emotion.
       </p>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      {trends.length === 0 && !error && <p>No trend data yet -- write a few entries across different weeks first.</p>}
-      {trends.map((t, i) => (
-        <div key={i} className="entry-card">
-          <strong>{t.week_start}</strong> — {t.emotion_label}: {t.avg_score.toFixed(2)}
-          {t.change_flag && <span style={{ color: "#c0392b", marginLeft: 8 }}>▲ significant change</span>}
+
+      {error && <div className="error-banner">{error}</div>}
+
+      {trends.length === 0 && !error && (
+        <div className="empty-state">
+          No trend data yet — write across a couple of different weeks and check back.
         </div>
-      ))}
+      )}
+
+      {trends.map((t, i) => {
+        const s = emotionStyle(t.emotion_label);
+        return (
+          <div key={i} className="trend-row">
+            <span className="trend-week mono">
+              {new Date(t.week_start).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+            </span>
+            <span className="trend-label" style={{ color: s.color }}>{s.label}</span>
+            <div className="trend-bar-track">
+              <div
+                className="trend-bar-fill"
+                style={{ width: `${Math.min(100, t.avg_score * 100)}%`, background: s.color }}
+              />
+            </div>
+            {t.change_flag && <span className="change-flag">▲ shift</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }

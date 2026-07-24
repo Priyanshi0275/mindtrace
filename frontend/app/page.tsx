@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
+import { emotionStyle } from "@/lib/emotionColors";
 
 type Entry = {
   id: string;
@@ -21,6 +22,7 @@ export default function JournalPage() {
     try {
       const data = await apiFetch("/api/entries/");
       setEntries(data);
+      setError("");
     } catch (e: any) {
       setError(e.message);
     }
@@ -41,10 +43,8 @@ export default function JournalPage() {
         body: JSON.stringify({ raw_text: text, entry_date: today }),
       });
       setText("");
-      // Tagging happens async in Celery -- refresh after a short delay so
-      // the demo shows the pipeline finishing, not just an empty entry.
-      setTimeout(loadEntries, 4000);
       loadEntries();
+      setTimeout(loadEntries, 5000); // pick up tags once Celery finishes
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -52,46 +52,89 @@ export default function JournalPage() {
     }
   }
 
+  function topEmotion(entry: Entry) {
+    if (!entry.emotion_tags?.length) return null;
+    return [...entry.emotion_tags].sort((a, b) => b.score - a.score)[0];
+  }
+
   return (
-    <div>
-      <h1>Today</h1>
+    <div className="page-shell">
+      <span className="eyebrow">Today · {new Date().toLocaleDateString(undefined, { weekday: "long" })}</span>
+      <h1 className="hero-title">What's true today?</h1>
+      <p className="hero-sub">
+        Write freely — no one grades this. Patterns show up on their own, over time.
+      </p>
+
       <form onSubmit={submitEntry}>
         <textarea
+          className="journal-textarea"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Write about your day..."
+          placeholder="Start anywhere. A sentence is enough..."
           required
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Save entry"}
-        </button>
+        <div style={{ marginTop: "0.9rem" }}>
+          <button type="submit" disabled={loading}>
+            {loading ? "Saving..." : "Save entry"}
+          </button>
+        </div>
       </form>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <div className="error-banner">{error}</div>}
 
-      <h2 style={{ marginTop: "2rem" }}>Past entries</h2>
-      {entries.map((entry) => (
-        <div key={entry.id} className={`entry-card ${entry.is_flagged ? "flagged" : ""}`}>
-          <strong>{entry.entry_date}</strong>
-          <p>{entry.raw_text}</p>
-          <div>
-            {entry.emotion_tags.map((t) => (
-              <span
-                key={t.emotion_label}
-                style={{
-                  marginRight: 8,
-                  fontSize: "0.8rem",
-                  background: "#eee",
-                  padding: "2px 8px",
-                  borderRadius: 12,
-                }}
-              >
-                {t.emotion_label} ({t.score.toFixed(2)})
-              </span>
-            ))}
-          </div>
+      <h2 style={{ marginTop: "2.75rem", fontSize: "1.3rem" }}>Your trace</h2>
+
+      {entries.length === 0 && !error && (
+        <div className="empty-state" style={{ marginTop: "1rem" }}>
+          Nothing here yet — your first entry will start your trace.
         </div>
-      ))}
+      )}
+
+      <div className="timeline">
+        {entries.map((entry) => {
+          const top = topEmotion(entry);
+          const style = top ? emotionStyle(top.emotion_label) : null;
+          return (
+            <div
+              key={entry.id}
+              className={`entry-card ${entry.is_flagged ? "flagged" : ""}`}
+              style={{ ["--dot-color" as any]: style?.color }}
+            >
+              <span className="entry-date mono">
+                {new Date(entry.entry_date).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+              <p className="entry-text">{entry.raw_text}</p>
+              <div className="pill-row">
+                {entry.emotion_tags?.length ? (
+                  entry.emotion_tags
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, 4)
+                    .map((t) => {
+                      const s = emotionStyle(t.emotion_label);
+                      return (
+                        <span
+                          key={t.emotion_label}
+                          className="emotion-pill"
+                          style={{ background: s.bg, color: s.color }}
+                        >
+                          {s.label} · {t.score.toFixed(2)}
+                        </span>
+                      );
+                    })
+                ) : (
+                  <span className="emotion-pill" style={{ background: "#EFEBF7", color: "#6B6480" }}>
+                    Reading this one still...
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

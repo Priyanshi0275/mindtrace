@@ -1,42 +1,434 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #1a1a1a;
-  background: #fafafa;
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #FAF6FF;
+  --paper: #FFFFFF;
+  --ink: #241934;
+  --ink-soft: #5B5270;
+  --line: #E7E0F5;
+  --accent: #7C5CFF;
+  --accent-deep: #5B3DE0;
+
+  --joy: #B8860B;
+  --joy-bg: #FFF3D6;
+  --calm: #1E76A8;
+  --calm-bg: #DEF1FA;
+  --sadness: #4B44C0;
+  --sadness-bg: #E7E5FF;
+  --anger: #D14545;
+  --anger-bg: #FFE2E2;
+
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(36, 25, 52, 0.06);
 }
-textarea, input, button {
+
+* { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background-image:
+    radial-gradient(circle at 8% -5%, rgba(124, 92, 255, 0.10), transparent 40%),
+    radial-gradient(circle at 95% 10%, rgba(184, 134, 11, 0.08), transparent 35%);
+  background-attachment: fixed;
+}
+
+h1, h2, h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 0.4em 0;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.01em;
+}
+
+a { color: var(--accent-deep); }
+
+/* --- Top nav --- */
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.1rem 2rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(250, 246, 255, 0.85);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.site-logo {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin-right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.site-logo .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--joy));
+  display: inline-block;
+}
+
+.nav-link {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+  background: var(--line);
+  color: var(--ink);
+}
+
+.nav-link.active {
+  background: var(--ink);
+  color: white;
+}
+
+/* --- Page shell --- */
+.page-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-deep);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.hero-title {
+  font-size: 2.4rem;
+  line-height: 1.1;
+}
+
+.hero-sub {
+  color: var(--ink-soft);
+  font-size: 1.02rem;
+  max-width: 46ch;
+  margin-bottom: 1.75rem;
+}
+
+/* --- Form elements --- */
+textarea, input {
+  width: 100%;
   font-family: inherit;
   font-size: 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.9rem 1rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-textarea {
-  width: 100%;
-  min-height: 140px;
-  padding: 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+
+textarea::placeholder, input::placeholder {
+  color: #A69EBE;
 }
-input {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  margin-bottom: 0.75rem;
+
+textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, 0.14);
 }
+
+.journal-textarea {
+  min-height: 180px;
+  line-height: 1.6;
+  font-size: 1.05rem;
+  box-shadow: var(--shadow);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2.15rem,
+    var(--line) 2.16rem,
+    transparent 2.18rem
+  );
+}
+
+input { margin-bottom: 0.9rem; }
+
 button {
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
   border: none;
-  background: #2d2d2d;
-  color: white;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
   cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: white;
+  box-shadow: 0 3px 14px rgba(124, 92, 255, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(124, 92, 255, 0.4);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.link-btn {
+  background: none;
+  box-shadow: none;
+  color: var(--accent-deep);
+  padding: 0;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.link-btn:hover { transform: none; box-shadow: none; opacity: 0.8; }
+
+.error-banner {
+  background: var(--anger-bg);
+  color: #8A2626;
+  border: 1px solid rgba(209, 69, 69, 0.25);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  margin: 1rem 0;
+}
+
+/* --- Journal timeline / mood thread --- */
+.timeline {
+  position: relative;
+  margin-top: 2rem;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, var(--joy), var(--calm), var(--sadness), var(--accent));
+  opacity: 0.55;
+}
+
 .entry-card {
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background: white;
+  position: relative;
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.1rem;
 }
-.flagged {
-  border-color: #e0a;
-  background: #fff5fa;
+
+.entry-card::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 1.4rem;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--dot-color, var(--accent));
+  border: 2px solid var(--bg);
+}
+
+.entry-card.flagged {
+  border-color: rgba(209, 69, 69, 0.4);
+  background: linear-gradient(180deg, var(--anger-bg), var(--paper) 40%);
+}
+
+.entry-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.entry-text {
+  margin: 0.5rem 0 0.75rem;
+  line-height: 1.55;
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.emotion-pill {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.empty-state {
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* --- Trends page --- */
+.trend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 0.6rem;
+  box-shadow: var(--shadow);
+}
+
+.trend-week {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.trend-bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.trend-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.trend-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.change-flag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--anger);
+}
+
+/* --- Chat / reflect --- */
+.chat-bubble {
+  border-radius: 18px;
+  padding: 0.9rem 1.15rem;
+  margin-bottom: 0.9rem;
+  max-width: 88%;
+  box-shadow: var(--shadow);
+  line-height: 1.55;
+}
+
+.chat-bubble.user {
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.assistant {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-role {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.citation-row {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.citation-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--calm-bg);
+  color: var(--calm);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+}
+
+/* --- Login / auth --- */
+.auth-shell {
+  max-width: 420px;
+  margin: 3.5rem auto;
+  padding: 0 1.5rem;
+  position: relative;
+}
+
+.auth-blob {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 92, 255, 0.25), transparent 70%);
+  top: -80px;
+  right: -60px;
+  z-index: -1;
+  filter: blur(4px);
+}
+
+.auth-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 2rem 1.75rem;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 640px) {
+  .site-nav { padding: 0.9rem 1.1rem; flex-wrap: wrap; }
+  .page-shell { padding: 1.5rem 1rem 3rem; }
+  .hero-title { font-size: 1.9rem; }
+  .chat-bubble { max-width: 96%; }
 }

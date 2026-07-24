@@ -51,35 +51,46 @@ export default function ChatPage() {
   }
 
   return (
-    <div>
-      <h1>Reflect</h1>
-      <p style={{ color: "#666" }}>
-        Ask about your own journal history. Every question is checked by the
-        safety gate before anything else runs.
+    <div className="page-shell">
+      <span className="eyebrow">Grounded only in your own entries</span>
+      <h1 className="hero-title">Reflect</h1>
+      <p className="hero-sub">
+        Ask about your own history. Every message is checked for safety before anything else runs.
       </p>
-      <div>
+
+      {messages.length === 0 && (
+        <div className="empty-state">Try: "How have I been feeling this week?"</div>
+      )}
+
+      <div style={{ marginTop: "1.25rem" }}>
         {messages.map((m, i) => (
-          <div key={i} className="entry-card" style={{ background: m.role === "user" ? "#f0f0ff" : "white" }}>
-            <strong>{m.role === "user" ? "You" : "MindTrace"}</strong>
-            <p style={{ whiteSpace: "pre-wrap" }}>{m.content}</p>
+          <div key={i} className={`chat-bubble ${m.role}`}>
+            <span className="chat-role">{m.role === "user" ? "You" : "MindTrace"}</span>
+            <div style={{ whiteSpace: "pre-wrap" }}>{m.content}</div>
             {m.citations && m.citations.length > 0 && (
-              <div style={{ fontSize: "0.8rem", color: "#888" }}>
-                Sources: {m.citations.map((c: any) => c.entry_date).join(", ")}
+              <div className="citation-row">
+                {m.citations.map((c: any, idx: number) => (
+                  <span key={idx} className="citation-tag">{c.entry_date}</span>
+                ))}
               </div>
             )}
           </div>
         ))}
       </div>
-      <form onSubmit={ask}>
+
+      <form onSubmit={ask} style={{ display: "flex", gap: "0.6rem", marginTop: "1.25rem" }}>
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="How have I been feeling lately?"
           required
+          style={{ marginBottom: 0 }}
         />
-        <button type="submit" disabled={loading}>{loading ? "Thinking..." : "Ask"}</button>
+        <button type="submit" disabled={loading} style={{ flexShrink: 0 }}>
+          {loading ? "..." : "Ask"}
+        </button>
       </form>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <div className="error-banner">{error}</div>}
     </div>
   );
 }
