@@ -146,6 +146,38 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = "DENY"
 
+# --- Logging ---
+# By default, Django only prints request-handling errors to the console
+# when DEBUG=True, which means in production (DEBUG=False, as we want for
+# security) tracebacks would otherwise vanish silently instead of showing
+# up in Render's log stream. This config explicitly forces them to print
+# regardless of DEBUG, so production errors are always visible/debuggable.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -177,15 +209,3 @@ CELERY_BEAT_SCHEDULE = {
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "http://localhost:11434/v1")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "ollama")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "llama3.1:8b")
-import ssl
-
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
-
-CELERY_BROKER_USE_SSL = {
-    "ssl_cert_reqs": ssl.CERT_NONE,
-}
-
-CELERY_REDIS_BACKEND_USE_SSL = {
-    "ssl_cert_reqs": ssl.CERT_NONE,
-}
