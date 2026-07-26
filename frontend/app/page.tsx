@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
-import { emotionStyle } from "@/lib/emotionColors";
+import { describeMood, emotionStyle } from "@/lib/emotionColors";
 
 type Entry = {
   id: string;
   raw_text: string;
   entry_date: string;
+  created_at: string;
   emotion_tags: { emotion_label: string; score: number }[];
   is_flagged: boolean;
 };
@@ -57,6 +58,17 @@ export default function JournalPage() {
     return [...entry.emotion_tags].sort((a, b) => b.score - a.score)[0];
   }
 
+  function formatTimestamp(iso: string) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
   return (
     <div className="page-shell">
       <span className="eyebrow">Today · {new Date().toLocaleDateString(undefined, { weekday: "long" })}</span>
@@ -94,6 +106,8 @@ export default function JournalPage() {
         {entries.map((entry) => {
           const top = topEmotion(entry);
           const style = top ? emotionStyle(top.emotion_label) : null;
+          const mood = describeMood(entry.emotion_tags);
+
           return (
             <div
               key={entry.id}
@@ -101,36 +115,19 @@ export default function JournalPage() {
               style={{ ["--dot-color" as any]: style?.color }}
             >
               <span className="entry-date mono">
-                {new Date(entry.entry_date).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                {formatTimestamp(entry.created_at || entry.entry_date)}
               </span>
               <p className="entry-text">{entry.raw_text}</p>
-              <div className="pill-row">
-                {entry.emotion_tags?.length ? (
-                  entry.emotion_tags
-                    .sort((a, b) => b.score - a.score)
-                    .slice(0, 4)
-                    .map((t) => {
-                      const s = emotionStyle(t.emotion_label);
-                      return (
-                        <span
-                          key={t.emotion_label}
-                          className="emotion-pill"
-                          style={{ background: s.bg, color: s.color }}
-                        >
-                          {s.label} · {t.score.toFixed(2)}
-                        </span>
-                      );
-                    })
-                ) : (
-                  <span className="emotion-pill" style={{ background: "#EFEBF7", color: "#6B6480" }}>
-                    Reading this one still...
-                  </span>
-                )}
-              </div>
+
+              {mood ? (
+                <p className="mood-line" style={{ color: style?.color }}>
+                  {mood}
+                </p>
+              ) : entry.is_flagged ? null : (
+                <p className="mood-line" style={{ color: "#A69EBE" }}>
+                  Still reading this one...
+                </p>
+              )}
             </div>
           );
         })}

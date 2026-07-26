@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.journal.models import CrisisFlag, EmotionTag, EntryEmbedding, JournalEntry
 
-from .serializers import RegisterSerializer
+from .models import UserProfile
+from .serializers import MeSerializer, MoodCheckinSerializer, RegisterSerializer
 
 User = get_user_model()
 
@@ -16,6 +18,26 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class MeView(APIView):
+    """GET /api/auth/me/ -- who's logged in, for the nav avatar/profile menu."""
+
+    def get(self, request):
+        return Response(MeSerializer(request.user).data)
+
+
+class MoodCheckinView(APIView):
+    """POST /api/auth/mood-checkin/ -- quick one-word self-check-in."""
+
+    def post(self, request):
+        serializer = MoodCheckinSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        profile.current_mood = serializer.validated_data["mood"]
+        profile.current_mood_set_at = timezone.now()
+        profile.save()
+        return Response({"current_mood": profile.current_mood})
 
 
 class AccountExportView(APIView):
@@ -48,7 +70,6 @@ class AccountDeleteView(APIView):
 
     def delete(self, request):
         user = request.user
-        # Explicit cascade of the most sensitive tables first, then the user itself.
         JournalEntry.objects.filter(user=user).delete()  # cascades EmotionTag/EntryEmbedding/CrisisFlag
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

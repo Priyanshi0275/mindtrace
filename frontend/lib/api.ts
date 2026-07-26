@@ -18,6 +18,10 @@ export function clearTokens() {
   localStorage.removeItem("mindtrace_refresh");
 }
 
+export function isLoggedIn() {
+  return !!getTokens().access;
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const { access } = getTokens();
   const headers: Record<string, string> = {
@@ -47,15 +51,32 @@ export async function login(email: string, password: string) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: email, password }),
   });
-  if (!res.ok) throw new Error("Login failed");
+  if (!res.ok) throw new Error("Login failed — check your email and password.");
   const data = await res.json();
   setTokens(data.access, data.refresh);
   return data;
 }
 
-export async function register(email: string, password: string) {
+export async function register(fields: {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name?: string;
+  age?: number;
+}) {
   return apiFetch("/api/auth/register/", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(fields),
+  });
+}
+
+export async function getMe() {
+  return apiFetch("/api/auth/me/");
+}
+
+export async function submitMoodCheckin(mood: string) {
+  return apiFetch("/api/auth/mood-checkin/", {
+    method: "POST",
+    body: JSON.stringify({ mood }),
   });
 }

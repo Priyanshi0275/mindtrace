@@ -110,6 +110,67 @@ a { color: var(--accent-deep); }
   color: white;
 }
 
+.avatar-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--joy));
+  color: white;
+  box-shadow: 0 3px 10px rgba(124, 92, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  min-width: 200px;
+  padding: 0.6rem;
+  z-index: 20;
+}
+
+.profile-menu-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 0.3rem 0.5rem 0;
+}
+
+.profile-menu-email {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  padding: 0.1rem 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0.4rem;
+  word-break: break-all;
+}
+
+.profile-menu-item {
+  width: 100%;
+  background: none;
+  box-shadow: none;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-align: left;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.profile-menu-item:hover {
+  background: var(--line);
+  transform: none;
+  box-shadow: none;
+}
+
 /* --- Page shell --- */
 .page-shell {
   max-width: 760px;
@@ -277,6 +338,12 @@ button:disabled {
 .entry-text {
   margin: 0.5rem 0 0.75rem;
   line-height: 1.55;
+}
+
+.mood-line {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0.4rem 0 0;
 }
 
 .pill-row {

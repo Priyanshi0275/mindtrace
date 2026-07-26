@@ -32,3 +32,37 @@ const FALLBACK: EmotionStyle = { color: "#6B6480", bg: "#EFEBF7", label: "Unspec
 export function emotionStyle(label: string): EmotionStyle {
   return EMOTION_MAP[label?.toLowerCase()] || FALLBACK;
 }
+
+// Soft, human phrasing instead of clinical percentages. This is deliberate:
+// "Sadness · 0.74, Anger · 0.12" reads like a lab printout. A journal
+// should read like someone actually noticed how you were doing.
+const MOOD_PHRASE: Record<string, { primary: string; trace: string }> = {
+  joy: { primary: "Mostly lighter today", trace: "a little joy" },
+  happy: { primary: "Mostly lighter today", trace: "a little joy" },
+  calm: { primary: "Feeling pretty steady", trace: "some calm" },
+  neutral: { primary: "An even-keeled day", trace: "some neutrality" },
+  sadness: { primary: "Carrying something heavy", trace: "a trace of sadness" },
+  sad: { primary: "Carrying something heavy", trace: "a trace of sadness" },
+  anger: { primary: "Some real frustration today", trace: "a flicker of frustration" },
+  angry: { primary: "Some real frustration today", trace: "a flicker of frustration" },
+  anxiety: { primary: "A bit on edge", trace: "some unease" },
+  anxious: { primary: "A bit on edge", trace: "some unease" },
+  fear: { primary: "Feeling unsettled", trace: "some unease" },
+  disgust: { primary: "Something didn't sit right", trace: "a little discomfort" },
+  surprise: { primary: "Caught off guard today", trace: "a bit of surprise" },
+};
+
+export function describeMood(tags: { emotion_label: string; score: number }[]): string {
+  if (!tags || tags.length === 0) return "";
+  const sorted = [...tags].sort((a, b) => b.score - a.score);
+  const top = sorted[0];
+  const second = sorted[1];
+
+  const topPhrase = MOOD_PHRASE[top.emotion_label?.toLowerCase()]?.primary || "A mixed day";
+
+  if (second && second.score > 0.15 && second.emotion_label !== top.emotion_label) {
+    const secondPhrase = MOOD_PHRASE[second.emotion_label?.toLowerCase()]?.trace || "something else underneath";
+    return `${topPhrase}, with ${secondPhrase} underneath.`;
+  }
+  return `${topPhrase}.`;
+}
